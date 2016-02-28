@@ -9,6 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "deck": "0.0.4",
+    "events": "^1.1.0",
+    "hashish": "0.0.4",
+    "lazy": "^1.0.11",
     "request": "^2.69.0",
     "underscore": "^1.8.3"
   }
