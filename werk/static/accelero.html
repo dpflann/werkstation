@@ -1045,12 +1045,15 @@
 // #define octave2 120
 
         var id = Math.random().toString(36).substring(7);
-        var counter = 0;
         //var host = "localhost";//"192.148.240.1";
         var host = "192.168.240.172";
         var post = ":8000"
         var notes = [0,10,20,25,35,45,55,60];
         var coords = {};
+        var counter = 0;
+        var previousX = 0;
+        var previousY = 0;
+        var previousTime = (new Date().getTime());
 
         function translateValue(val, min, max) {
             var scaled = Math.min(Math.max(val, min), max),
@@ -1070,9 +1073,18 @@
             sendValue(coords.x || 0, 0, 180)
         }
 
-        function sendOrientation() { 
-          var url = "http://" + host + post + "/orientation?id=" + id + "&x=" + coords.x + "&y=" + coords.y + "&c=" + counter;
+        function sendOrientation() {
+          var currentX = coords.x;
+          var currentY = coords.y;
+
+          var timeSeconds = 0;
+          var timeDiffBetweenYsMilliseconds = 0;
+
+          var url = "http://" + host + post + "/orientation?id=" + id + "&x=" + currentX + "&y=" + currentY + "&c=" + counter + "&t=" + timeSeconds + "&ty=" + timeDiffBetweenYsMilliseconds;
           $.ajax({ url: url });
+
+          previousX = currentX;
+          previousY = currentY;
           counter++;
         }
 
