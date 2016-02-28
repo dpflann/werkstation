@@ -2,17 +2,17 @@ var _ = require('underscore');
 
 var Scales = {
     CHROMATIC: [0,1,2,3,4,5,6,7,8,9,10,11,12],
-    MAJOR: [0,2,4,5,7,9,11,12]
+    MAJOR: [0,2,4,5,7,9,11,12],
+    MINOR: [0,2,3,5,7,8,10,12],
+    BLUES: [0,3,5,8,10,11,12]
 }
-
-var BPM = 120 // TODO pass dat
 
 var Duration = {
     // TODO add rests?
-    SIXTEENTH: { value: 1/16, weight: 2 },
-    EIGHTH: { value: 1/8, weight: 4 },
+    SIXTEENTH: { value: 1/16, weight: 4 },
+    EIGHTH: { value: 1/8, weight: 8 },
     QUARTER: { value: 1/4, weight: 8 },
-    HALF: { value: 1/2, weight: 2 },
+    HALF: { value: 1/2, weight: 1 },
     WHOLE: { value: 1, weight: 0 } // these are boring probably
 }, weightedDurations = weightArray(Duration)
 
@@ -20,8 +20,8 @@ function Note(offset, duration) {
     this.offset = offset
     this.duration = duration
 
-    this.getDurationInMs = function() {
-        return 1 / BPM * 60000 * this.duration * 4
+    this.getDurationInMs = function(bpm) {
+        return 1 / bpm * 60000 * this.duration * 4
     }
     this.getChromaticOffset = function(scale) {
         return scale[this.offset]
@@ -29,7 +29,7 @@ function Note(offset, duration) {
 }
 
 function generateRiff(config) {
-    var measuresPerRiff = 4, // maybe config this?
+    var measuresPerRiff = config.numMeasures,
         scale = config.scale
 
     var notes = [],

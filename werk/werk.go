@@ -10,6 +10,8 @@ import (
 )
 
 // Make a shared map of state
+// create a mutex around the shared map
+// update key-value store for the improvisr
 
 func hello(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Hello, world!")
@@ -41,29 +43,31 @@ func handleOrientationRequest(w http.ResponseWriter, r *http.Request) {
 	// throws those values to another function to calculate and send values upstream
 	query := r.URL.Query()
 	log.Printf(r.URL.String())
-	log.Printf("id = %s, x = %s, y = %s", query["id"], query["x"], query["y"])
-	defer calculateVelocity(query["id"], query["x"], query["y"])
+	log.Printf("id = %s, x = %s, y = %s, c = %s", query["id"], query["x"], query["y"], query["c"])
+	defer calculateVelocity(query["id"], query["x"], query["y"], query["c"])
 	io.WriteString(w, "200")
 }
 
-func calculateVelocity(id, x, y []string) {
+func calculateVelocity(id, x, y, c []string) {
 	log.Printf("Calculating velocity for: %s", id)
 	sX := strings.Join(x, "")
 	log.Printf(sX)
 	iX, err := strconv.ParseInt(strings.Join(x, ""), 10, 32)
 	iY, err := strconv.ParseInt(strings.Join(y, ""), 10, 32)
+	iC, err := strconv.ParseInt(strings.Join(c, ""), 10, 32)
 	if err != nil {
 		log.Printf("Error occurred while calculating velocity")
 	}
 	log.Printf("x = %d", iX)
 	log.Printf("y = %d", iY)
+	log.Printf("c = %d", iC)
 }
 
 func main() {
 	http.HandleFunc("/", hello)
 	//http.HandleFunc("/arduino/", printIt)
 	http.HandleFunc("/arduino/", proxyRequestToYun)
-	http.HandleFunc("/orientation/", handleOrientationRequest)
+	http.HandleFunc("/orientation", handleOrientationRequest)
 	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
 	})

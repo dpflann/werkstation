@@ -22,7 +22,7 @@ function ArduinoApi(options) {
 
     var sendNote = function(note) {
         var voltage = getVoltageForNote(note)
-        sendUdp("" + voltage)
+        sendUdp(voltage + "," + voltage)
     }
 
     return {
@@ -31,23 +31,33 @@ function ArduinoApi(options) {
 }
 
 var api = new ArduinoApi({ outputPin: 6 })
-var riff;
+var riff, lastRiff
 
-var scale = [0,4,7,12]//improvisr.Scales.CHROMATIC
+var config = {
+    scale: improvisr.Scales.MINOR,
+    numMeasures: 2,
+    bpm: 180,
+    loopRiff: true
+}
 function generateRiff() {
-    riff = improvisr.generateRiff({ scale: scale })
+    riff = improvisr.generateRiff(config)
+    lastRiff = _.map(riff, _.clone)
 }
 
 var playNextNote = function() {
     var note = riff.shift()
-    console.log("Playing note " + note.getChromaticOffset(scale) + " for " + note.duration)
-    api.sendNote(note.getChromaticOffset(scale))
+    console.log("Playing note " + note.getChromaticOffset(config.scale) + " for " + note.duration)
+    api.sendNote(note.getChromaticOffset(config.scale))
 
     if (! riff.length) {
-        generateRiff()
+        if (config.loopRiff) {
+            riff = _.map(lastRiff, _.clone)
+        } else {
+            generateRiff()
+        }
     }
 
-    setTimeout(playNextNote, note.getDurationInMs())
+    setTimeout(playNextNote, note.getDurationInMs(config.bpm))
 }
 
 generateRiff()

@@ -1044,7 +1044,12 @@
 // #define octave 60
 // #define octave2 120
 
-        var notes = [0,10,20,25,35,45,55,60]
+        var id = Math.random().toString(36).substring(7);
+        var counter = 0;
+        //var host = "localhost";//"192.148.240.1";
+        var host = "192.168.240.172";
+        var post = ":8000"
+        var notes = [0,10,20,25,35,45,55,60];
         var coords = {};
 
         function translateValue(val, min, max) {
@@ -1057,7 +1062,7 @@
         }
 
         function sendValue(value, min, max) {
-            var url = "http://192.168.240.172:8000/arduino/analog/6/" + translateValue(value, min, max)
+            var url = "http://" + host + post + "/arduino/analog/6/" + translateValue(value, min, max)
             $.ajax({ url: url })
         }
 
@@ -1065,9 +1070,15 @@
             sendValue(coords.x || 0, 0, 180)
         }
 
+        function sendOrientation() { 
+          var url = "http://" + host + post + "/orientation?id=" + id + "&x=" + coords.x + "&y=" + coords.y + "&c=" + counter;
+          $.ajax({ url: url });
+          counter++;
+        }
+
         window.addEventListener("deviceorientation", function(event) {
             coords.x = Math.round(event.gamma) + 90;// 0 - 180
-            coords.y = Math.round(event.beta);
+            coords.y = Math.round(event.beta) + 90;
         })
 
         function render() {
@@ -1079,7 +1090,8 @@
         }
 
         setInterval(render, 100)
-        setInterval(sendValues, 500)
+        //setInterval(sendValues, 500)
+        setInterval(sendOrientation, 500)
     </script>
 </head>
 <body>
