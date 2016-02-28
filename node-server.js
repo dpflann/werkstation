@@ -1,9 +1,6 @@
-var request = require('request');
-
-var Scales = {
-    CHROMATIC: [0,1,2,3,4,5,6,7,8,9,10,11,12],
-    MAJOR: [0,2,4,5,7,9,11,12]
-}
+var request = require('request'),
+    _ = require('underscore'),
+    improvisr = require("./improvisr.js");
 
 var VOLTAGES = [0,5,10,15,20,25,30,35,40,45,50,55,60]
 // #define octave2 120
@@ -25,7 +22,6 @@ function ArduinoApi(options) {
 
     var sendNote = function(note) {
         var voltage = getVoltageForNote(note)
-        console.log("playing " + voltage)
         sendUdp("" + voltage)
     }
 
@@ -35,17 +31,24 @@ function ArduinoApi(options) {
 }
 
 var api = new ArduinoApi({ outputPin: 6 })
-var cursor = 0;
-console.log("i did it")
+var riff;
 
-var playNextNote = function() {
-    var scale = Scales.MAJOR
-    var note = scale[cursor]
-    cursor = (cursor + Math.floor(Math.random() * 6) - 2 + scale.length) % scale.length
-    // cursor = Math.floor(Math.random() * scale.length)
-    // cursor = ++cursor % scale.length//Math.floor(Math.random() * scale.length)
-    api.sendNote(note)
-    setTimeout(playNextNote, 200)
+var scale = [0,4,7,12]//improvisr.Scales.CHROMATIC
+function generateRiff() {
+    riff = improvisr.generateRiff({ scale: scale })
 }
 
+var playNextNote = function() {
+    var note = riff.shift()
+    console.log("Playing note " + note.getChromaticOffset(scale) + " for " + note.duration)
+    api.sendNote(note.getChromaticOffset(scale))
+
+    if (! riff.length) {
+        generateRiff()
+    }
+
+    setTimeout(playNextNote, note.getDurationInMs())
+}
+
+generateRiff()
 playNextNote()
