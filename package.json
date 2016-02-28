@@ -1,0 +1,19 @@
+{
+  "name": "moog-hack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "node-server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "deck": "0.0.4",
+    "events": "^1.1.0",
+    "hashish": "0.0.4",
+    "lazy": "^1.0.11",
+    "request": "^2.69.0",
+    "underscore": "^1.8.3"
+  }
+}
